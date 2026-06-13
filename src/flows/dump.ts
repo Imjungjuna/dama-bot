@@ -71,6 +71,9 @@ export async function handleDump(ctx: Context, userId: string) {
     const targetTime = result.due_at ?? result.action_time;
     const ack = formatScheduledAck(pingAt, targetTime!);
     await ctx.reply(ack);
+    if (result.comment) {
+      await ctx.reply(result.comment);
+    }
   } else {
     const ack = ackForType(result.type!);
     if (ack) {

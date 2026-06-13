@@ -14,6 +14,7 @@ export interface ClassifyResult {
   remind_at_explicit: string | null;
   done_target: string | null;
   options: string[] | null;
+  comment: string | null;
 }
 
 const SYSTEM_PROMPT = `당신은 ADHD 사용자의 머릿속 덤프를 분류하는 시스템이다.
@@ -32,7 +33,8 @@ const SYSTEM_PROMPT = `당신은 ADHD 사용자의 머릿속 덤프를 분류하
   "action_time": "ISO8601 (schedule_kind=timed일 때 실행 시점. 아니면 null)",
   "remind_at_explicit": "ISO8601 (사용자가 알림 시간을 명시한 경우만. 아니면 null)",
   "done_target": "intent=done_report일 때 완료 대상 추정 키워드, 아니면 null",
-  "options": ["선택지1", "선택지2"] // type=decision이고 선택지가 명시된 경우만, 아니면 null
+  "options": ["선택지1", "선택지2"], // type=decision이고 선택지가 명시된 경우만, 아니면 null
+  "comment": "type=scheduled일 때 친구가 한마디 하듯 짧은 리액션 (1문장, 반말). 아니면 null"
 }
 
 규칙:
@@ -65,7 +67,8 @@ const SYSTEM_PROMPT = `당신은 ADHD 사용자의 머릿속 덤프를 분류하
    - "영화 좀 봐야하는데" → someday (뭘 볼지 미정)
 6. decision은 행동/상태 변화에 대해 결론이 나지 않은 고민이다. 선택지가 명시되지 않아도 된다. "고민 중", "어떡하지", "해야 하나 말아야 하나" 같은 결론 미정 상태면 decision. 선택지가 있으면 options 배열에 담고, 없으면 null.
 7. 감정 토로만 있고 행동/변화 고민이 아니면 emotion. ("나 왜 이러지", "오늘 짜증나")
-8. intent 판정: 입력에 분류 가능한 내용(할 일, 일정, 고민, 감정 등)이 있으면 반드시 intent=dump. ask_card는 "뭐하지", "카드 줘"처럼 내용 없이 카드만 요청할 때만. type이 non-null이면 intent는 반드시 dump.`;
+8. intent 판정: 입력에 분류 가능한 내용(할 일, 일정, 고민, 감정 등)이 있으면 반드시 intent=dump. ask_card는 "뭐하지", "카드 줘"처럼 내용 없이 카드만 요청할 때만. type이 non-null이면 intent는 반드시 dump.
+9. comment: type=scheduled일 때만 채운다. 친구가 옆에서 한마디 하는 느낌. 반말, 1문장, 15자 이내. 예: "엄마한테 전화" → "효자네ㅋㅋ", "면접" → "떨지 마~", "약 먹기" → "잊지 말고 꼭!", "헬스장" → "오 운동 가는 거야?"  내용에 맞게 자연스럽게.`;
 
 const FALLBACK: ClassifyResult = {
   severity: 'none',
@@ -80,6 +83,7 @@ const FALLBACK: ClassifyResult = {
   remind_at_explicit: null,
   done_target: null,
   options: null,
+  comment: null,
 };
 
 export async function classify(text: string, userId: string): Promise<ClassifyResult> {
