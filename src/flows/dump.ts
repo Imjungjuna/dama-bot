@@ -136,12 +136,12 @@ function formatScheduledAck(pingAtIso: string, targetIso: string): string {
 /** 시각 → 시간대 텍스트. 경계값은 이전 구간 유지. */
 function periodOf(hour24: number, minute: number): string {
   const t = hour24 * 60 + minute; // 분 단위 비교
-  if (t < 6 * 60) return '새벽';      // 0:00 ~ 5:59
-  if (t < 9 * 60) return '아침';      // 6:00 ~ 8:59
-  if (t < 12 * 60) return '오전';     // 9:00 ~ 11:59
+  if (t <= 6 * 60) return '새벽';     // 0:00 ~ 6:00
+  if (t <= 9 * 60) return '아침';     // ~ 9:00
+  if (t < 12 * 60) return '오전';     // ~ 11:59
   if (t === 12 * 60) return '정오';   // 12:00 정각
-  if (t < 17 * 60) return '오후';     // 12:01 ~ 16:59
-  if (t < 20 * 60) return '저녁';     // 17:00 ~ 19:59
-  if (t < 24 * 60) return '밤';       // 20:00 ~ 23:59
-  return '자정';                       // 24:00 (= 0:00)
+  if (t <= 17 * 60) return '오후';    // ~ 17:00
+  if (t <= 20 * 60) return '저녁';    // ~ 20:00
+  if (t < 24 * 60) return '밤';       // ~ 23:59
+  return '자정';                       // 24:00
 }
