@@ -77,15 +77,32 @@ async function sendScheduledReminder(bot: Bot, user: any, ping: any) {
 
   const { data: item } = await supabase
     .from('items')
-    .select('title, first_action, est_minutes, action_time, due_at')
+    .select('id, title, action_time, due_at')
     .eq('id', ping.item_id)
     .single();
 
   if (!item) return;
 
-  // 카드로 발송
-  await sendCard(user.id, async (text, kb) => {
-    await bot.api.sendMessage(user.tg_chat_id, text, kb ? { reply_markup: kb } : undefined);
-  });
+  const target = item.action_time ?? item.due_at;
+  const timeLabel = target ? formatReminderTime(new Date(target)) : '';
+  const text = `⏰ ${item.title}${timeLabel ? ` — ${timeLabel}` : ''}`;
+
+  const kb = new InlineKeyboard()
+    .text('시작', `start:${item.id}`)
+    .text('나중에', `later:${item.id}`);
+
+  await bot.api.sendMessage(user.tg_chat_id, text, { reply_markup: kb });
+  await logEvent(user.id, 'scheduled_reminder_sent', item.id);
+}
+
+function formatReminderTime(target: Date): string {
+  const now = new Date();
+  const diffMin = Math.round((target.getTime() - now.getTime()) / 60000);
+
+  if (diffMin <= 0) return '지금!';
+  if (diffMin < 60) return `${diffMin}분 뒤`;
+  const hours = Math.floor(diffMin / 60);
+  const mins = diffMin % 60;
+  return mins > 0 ? `${hours}시간 ${mins}분 뒤` : `${hours}시간 뒤`;
 }
 
