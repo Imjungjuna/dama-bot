@@ -77,7 +77,7 @@ async function sendScheduledReminder(bot: Bot, user: any, ping: any) {
 
   const { data: item } = await supabase
     .from('items')
-    .select('id, title, action_time, due_at')
+    .select('id, title, action_time, due_at, comment')
     .eq('id', ping.item_id)
     .single();
 
@@ -92,6 +92,9 @@ async function sendScheduledReminder(bot: Bot, user: any, ping: any) {
     .text('나중에', `later:${item.id}`);
 
   await bot.api.sendMessage(user.tg_chat_id, text, { reply_markup: kb });
+  if (item.comment) {
+    await bot.api.sendMessage(user.tg_chat_id, item.comment);
+  }
   await logEvent(user.id, 'scheduled_reminder_sent', item.id);
 }
 

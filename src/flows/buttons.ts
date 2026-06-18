@@ -82,22 +82,7 @@ export function registerButtonHandlers(bot: any) {
       case 'crisis_false':
         await ctx.reply(CRISIS_FALSE_ALARM);
         break;
-      case 'someday_keep':
-        await updateItem(itemId, { status: 'inbox', type: 'action' });
-        await logEvent(userId, 'someday_kept', itemId);
-        await ctx.reply('살렸어. 카드로 꺼낼게.');
-        break;
-      case 'someday_snooze':
-        await updateItem(itemId, {
-          resurface_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-        });
-        await ctx.reply('30일 뒤에 다시 물어볼게.');
-        break;
-      case 'someday_drop':
-        await updateItem(itemId, { status: 'dropped' });
-        await logEvent(userId, 'someday_dropped', itemId);
-        await ctx.reply('버렸어.');
-        break;
+      // someday는 주간 브리핑에서 일괄 리뷰 (개별 버튼 미사용)
       case 'decisions_view':
         await showPendingDecisions(ctx, userId);
         break;

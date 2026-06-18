@@ -88,6 +88,7 @@ export async function createItem(fields: {
   ping_at?: string | null;
   resurface_at?: string | null;
   options?: string[] | null;
+  comment?: string | null;
 }) {
   const { data, error } = await supabase
     .from('items')

@@ -40,10 +40,6 @@ export async function routeDump(
     ? computePingAt(c)
     : { pingAt: null, pingWarning: null };
 
-  if (type === 'scheduled') {
-    console.log('[router] scheduled:', { schedule_kind: c.schedule_kind, due_at: c.due_at, action_time: c.action_time, pingAt, pingWarning });
-  }
-
   const resolvedDueAt = c.schedule_kind === 'deadline' ? c.due_at ?? null : null;
   const resolvedActionTime = c.schedule_kind === 'timed' ? c.action_time ?? null : null;
   // 폴백: schedule_kind 없고 due_at만 있으면 due_at 그대로 저장
@@ -62,6 +58,7 @@ export async function routeDump(
     ping_at: pingAt,
     resurface_at: null,
     options: type === 'decision' && c.options ? c.options : null,
+    comment: type === 'scheduled' ? c.comment : null,
   });
 
   // scheduled → ping 예약 (pingAt이 있을 때만)

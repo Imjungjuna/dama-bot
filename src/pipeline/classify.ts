@@ -98,7 +98,6 @@ export async function classify(text: string, userId: string): Promise<ClassifyRe
       // Validate required fields
       if (!result.severity || !result.intent) throw new Error('Missing required fields');
 
-      console.log('[classify]', JSON.stringify(result, null, 2));
       return result;
     } catch (err) {
       if (attempt === 1) {

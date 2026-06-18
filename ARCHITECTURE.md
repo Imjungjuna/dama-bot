@@ -45,7 +45,7 @@ User sends text message
 ```
 입력: "내일 오후 3시 미팅"
     │
-    ├─ classify() → type:'scheduled', schedule_kind:'timed', action_time:'2026-06-14T15:00:00'
+    ├─ classify() → type:'scheduled', schedule_kind:'timed', action_time:'...', comment:'화이팅!'
     │
     ├─ routeDump() → computePingAt()
     │   ├─ remind_at_explicit 있으면 → 해당 시각 (과거/기한후 검증)
@@ -54,16 +54,20 @@ User sends text message
     │       └─ target ≤ 24h → ping = target - 1h
     │       └─ ping ≤ now → ping = now (즉시)
     │
-    ├─ createItem(action_time, ping_at)
+    ├─ createItem(action_time, ping_at, comment) → items 테이블 저장
     ├─ schedulePing(kind:'scheduled_reminder', due_at: pingAt)
     │
-    ├─ formatScheduledAck(pingAt, target)
-    │   ├─ periodOf(hour, min) → 새벽/아침/오전/정오/오후/저녁/밤
-    │   ├─ 24h+ → "6/22(월) 저녁 6시(6시간 전)에 알려줄게."
-    │   ├─ 당일 → "오후 1시(1시간 전)에 알려줄게."
-    │   └─ 즉시 → "곧 알려줄게."
+    ├─ Ack 응답
+    │   ├─ formatScheduledAck(pingAt, target)
+    │   │   ├─ periodOf(hour, min) → 새벽/아침/오전/정오/오후/저녁/밤
+    │   │   ├─ 24h+ → "알겠어. 6/22(월) 저녁 6시(6시간 전)에 알려줄게."
+    │   │   ├─ 당일 → "알겠어. 오후 1시(1시간 전)에 알려줄게."
+    │   │   └─ 즉시 → "알겠어. 곧 알려줄게."
+    │   └─ comment → "화이팅!" (별도 메시지)
     │
-    └─ sweep (60s cron) → getDuePings() → sendCard()
+    └─ sweep (60s cron) → getDuePings() → sendScheduledReminder()
+        ├─ "⏰ {title} — {남은시간}" + [시작][나중에] 버튼
+        └─ comment 있으면 별도 메시지 전송
 ```
 
 ---
